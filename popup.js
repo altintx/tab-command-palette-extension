@@ -1,0 +1,119 @@
+import { getTabs, getBookmarks } from './src/actions.js';
+
+document.addEventListener('DOMContentLoaded', async function() {
+    const searchBox = document.getElementById('searchBox');
+    const actionsList = document.getElementById('actionsList');
+    let actions = [];
+
+    const tabs = await getTabs();
+    const bookmarks = await getBookmarks();
+
+    tabs.forEach(tab => {
+        actions.push({
+            type: 'tab',
+            title: `Switch to tab: ${tab.title}`,
+            action: function() {
+                chrome.tabs.update(tab.id, {active: true});
+            }
+        });
+    });
+
+    bookmarks.forEach(bookmark => {
+        actions.push({
+            type: 'bookmark',
+            title: `Open bookmark: ${bookmark.title}`,
+            action: function() {
+                chrome.tabs.create({ url: bookmark.url });
+            }
+        });
+    });
+
+    // Add action for opening a new tab
+    actions.push({
+        type: 'system',
+        title: 'Open new tab',
+        action: function() {
+            chrome.tabs.create({});
+        }
+    });
+
+    // Add action for closing the current tab
+    actions.push({
+        type: 'system',
+        title: 'Close current tab',
+        action: function() {
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                chrome.tabs.remove(tabs[0].id);
+            });
+        }
+    });
+
+    actions.push({
+        type: 'system',
+        title: 'Close popup',
+        action: function() {
+            window.close();
+        }
+    });
+
+    actions.push({
+        type: 'system',
+        title: 'Open browser shortcut keys',
+        action: function() {
+            chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+        }
+    })
+
+    // Render actions based on the current search query
+    searchBox.addEventListener('input', function() {
+        const queryPhrase = searchBox.value.toLowerCase();
+        
+        if(queryPhrase.length) {
+            const query = queryPhrase.split(" ");
+            const filteredActions = actions.filter(action =>
+                query.every(query => 
+                    action.title.toLowerCase().includes(query))
+            );
+            renderActions(filteredActions, query);
+
+        } else {
+            return renderActions(actions, []);
+        }
+    });
+
+    // Render the list of actions
+    function renderActions(actionItems, queryTerms) {
+        actionsList.innerHTML = '';
+        actionItems.forEach(function(action) {
+            const actionElement = document.createElement('div');
+            actionElement.innerHTML = highlightMatch(action.title, queryTerms)
+            actionElement.className = 'action-item';
+            actionElement.addEventListener('click', function() {
+                action.action();
+                window.close(); // Close the popup after action
+            });
+            actionsList.appendChild(actionElement);
+        });
+    }
+
+     // Function to bold the matching part of the title
+     function highlightMatch(title, queryTerms) {
+        if (!queryTerms) return title;
+        let titleResult = title;
+        for(const term of queryTerms) {
+            titleResult = titleResult.replace(new RegExp(term, 'gi'), '<strong>$&</strong>');
+        }
+        return titleResult;
+    }
+
+    // Focus the search box when the popup opens
+    searchBox.focus();
+
+    // Detect if the user prefers dark mode
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark-theme');
+    } else {
+        document.body.classList.add('light-theme');
+    }
+    
+});

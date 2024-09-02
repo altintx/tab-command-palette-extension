@@ -1,0 +1,19 @@
+{
+  "name": "tab-command-p",
+  "version": "1.0.0",
+  "description": "a command palette for working with tabs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/altintx/tab-command-palette-extension.git"
+  },
+  "author": "Brian Bosh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/altintx/tab-command-palette-extension/issues"
+  },
+  "homepage": "https://github.com/altintx/tab-command-palette-extension#readme"
+}
