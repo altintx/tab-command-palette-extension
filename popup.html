@@ -11,7 +11,7 @@
         }
         .dark-theme {
             background-color: #333;
-            color: #fff;
+            color: #ddd;
         }
         .light-theme {
             background-color: #fff;
@@ -24,12 +24,10 @@
         .dark-theme #searchBox {
             background-color: #444;
             color: #fff;
-            border: 1px solid #666;
         }
         .light-theme #searchBox {
             background-color: #f9f9f9;
             color: #000;
-            border: 1px solid #ccc;
         }
         .action-item {
             padding: 5px;
@@ -38,7 +36,7 @@
         }
         .dark-theme .action-item {
             background-color: #444;
-            color: #fff;
+            color: #ddd;
             border-bottom: 1px solid #555;
         }
         .light-theme .action-item {
@@ -51,17 +49,22 @@
         }
         .dark-theme .action-item:hover {
             background-color: #555;
+            color: #fff;
         }
-        #actionsList {
+        #actions-list {
             max-height: 400px;
             overflow-y: auto;
         }
+        .dark-theme .action-item strong {
+            color: #ffffff;
+        }
+        
     </style>
     <title>Tab Command Palette</title>
 </head>
 <body>
     <input type="text" id="searchBox" placeholder="Search actions...">
-    <div id="actionsList"></div>
+    <div id="actions-list"></div>
     <script type="module" src="dist/popup.js"></script>
 </body>
 </html>

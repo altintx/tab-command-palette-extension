@@ -3,7 +3,7 @@ import { CmdShiftPAction } from './command-shift-p-action';
 
 document.addEventListener('DOMContentLoaded', async function() {
     const searchBox = document.getElementById('searchBox') as HTMLInputElement;
-    const actionsList = document.getElementById('actionsList') as HTMLDivElement;
+    const actionsList = document.getElementById('actions-list') as HTMLDivElement;
     let actions: CmdShiftPAction[] = [];
     if(!searchBox || !actionsList) return;
 
