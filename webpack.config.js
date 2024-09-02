@@ -5,7 +5,7 @@ module.exports = {
   mode: 'production',
   plugins: [new MiniCssExtractPlugin()],
   entry: {
-    popup: './src/popup.ts',
+    popup: './src/app.tsx',
     background: './src/background.ts'
   },
   output: {
@@ -15,7 +15,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
       },
@@ -26,6 +26,6 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.ts', '.js', '.css'],
+    extensions: ['.ts', '.js', '.css', '.tsx'],
   },
 };
