@@ -90,10 +90,7 @@ const Popup: React.FC = () => {
       label="Command Menu"
       loop
     >
-    <Command.Input ref={searchBox} style={{
-      width: "100%",
-      border: "0"
-    }} />
+    <Command.Input ref={searchBox} className="searchBox" />
     <Command.List>
       <Command.Empty>No results found.</Command.Empty>
       {actions.map((action,ix) => (

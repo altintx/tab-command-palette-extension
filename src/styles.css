@@ -11,15 +11,15 @@ body {
   background-color: #fff;
   color: #000;
 }
-#searchBox {
+.searchBox {
   width: 100%;
   border: 0;
 }
-.dark-theme #searchBox {
+.dark-theme .searchBox {
   background-color: #444;
   color: #fff;
 }
-.light-theme #searchBox {
+.light-theme .searchBox {
   background-color: #f9f9f9;
   color: #000;
 }
