@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { CmdShiftPAction } from '../command-shift-p-action';
-import { getBookmarks, getTabs } from '../actions';
+import { getBookmarks, getTabs } from '../chrome-apis';
 import { Command } from "cmdk";
 import { GoBookmark, GoTools, GoProjectSymlink  } from "react-icons/go";
 
