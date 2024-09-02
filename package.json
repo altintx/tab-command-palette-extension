@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/altintx/tab-command-palette-extension/issues"
   },
-  "homepage": "https://github.com/altintx/tab-command-palette-extension#readme"
+  "homepage": "https://github.com/altintx/tab-command-palette-extension#readme",
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
 }

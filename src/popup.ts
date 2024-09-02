@@ -1,4 +1,4 @@
-import { getTabs, getBookmarks } from './src/actions.js';
+import { getTabs, getBookmarks } from './actions';
 
 document.addEventListener('DOMContentLoaded', async function() {
     const searchBox = document.getElementById('searchBox');
