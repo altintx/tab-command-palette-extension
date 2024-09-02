@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { CmdShiftPAction } from '../command-shift-p-action';
 import { getBookmarks, getTabs } from '../actions';
 import { Command } from "cmdk";
+import { GoBookmark, GoTools, GoProjectSymlink  } from "react-icons/go";
 
 const Popup: React.FC = () => {
   const [actions, setActions] = useState<CmdShiftPAction[]>([]);
   const searchBox = useRef<HTMLInputElement | null>(null);
+
+  const closePopup = useCallback(() => window.close(), []);
 
   useEffect(() => {
     const immediate = async () => {
@@ -22,6 +25,8 @@ const Popup: React.FC = () => {
           type: "tab",
           action: function () {
             chrome.tabs.update(tab.id!, { active: true });
+            chrome.windows.update(tab.windowId!, { focused: true });
+            closePopup();
           }
         });
       });
@@ -33,6 +38,7 @@ const Popup: React.FC = () => {
           description: title,
           action: function () {
             chrome.tabs.create({ url: bookmark.url });
+            closePopup();
           }
         });
       });
@@ -44,6 +50,7 @@ const Popup: React.FC = () => {
         description: "Creates a new tab to the configured homepage",
         action: function () {
           chrome.tabs.create({});
+          closePopup();
         }
       });
 
@@ -56,6 +63,7 @@ const Popup: React.FC = () => {
           chrome.tabs.query({ active: true, currentWindow: true }, function ([tab]) {
             if (tab.id)
               chrome.tabs.remove(tab.id);
+            closePopup();
           });
         }
       });
@@ -75,6 +83,7 @@ const Popup: React.FC = () => {
         description: "The browser defaults to control+P being print. Open the browser's shortcuts page to change this",
         action: function () {
           chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+          closePopup();
         }
       })
 
@@ -100,7 +109,10 @@ const Popup: React.FC = () => {
           className='action-item'
           value={`${action.title}-${ix}`}
         >
-          {action.title}
+          {action.type === 'bookmark' && <GoBookmark />}
+          {action.type === "tab" && <GoProjectSymlink />}
+          {action.type === "system" && <GoTools />}
+          {" "}{action.title}
         </Command.Item>
       ))}      
     </Command.List>
