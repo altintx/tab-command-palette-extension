@@ -1,27 +1,33 @@
 import { getTabs, getBookmarks } from './actions';
+import { CmdShiftPAction } from './command-shift-p-action';
 
 document.addEventListener('DOMContentLoaded', async function() {
-    const searchBox = document.getElementById('searchBox');
-    const actionsList = document.getElementById('actionsList');
-    let actions = [];
+    const searchBox = document.getElementById('searchBox') as HTMLInputElement;
+    const actionsList = document.getElementById('actionsList') as HTMLDivElement;
+    let actions: CmdShiftPAction[] = [];
+    if(!searchBox || !actionsList) return;
 
     const tabs = await getTabs();
     const bookmarks = await getBookmarks();
 
-    tabs.forEach(tab => {
+    tabs.filter(tab => !!tab.id).forEach(tab => {
+        const title = `Switch to tab: ${tab.title}`
         actions.push({
-            type: 'tab',
-            title: `Switch to tab: ${tab.title}`,
+            title,
+            description: title,
+            type: "tab",
             action: function() {
-                chrome.tabs.update(tab.id, {active: true});
+                chrome.tabs.update(tab.id!, {active: true});
             }
         });
     });
 
     bookmarks.forEach(bookmark => {
+        const title = `Open bookmark: ${bookmark.title}`;
         actions.push({
             type: 'bookmark',
-            title: `Open bookmark: ${bookmark.title}`,
+            title,
+            description: title,
             action: function() {
                 chrome.tabs.create({ url: bookmark.url });
             }
@@ -32,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     actions.push({
         type: 'system',
         title: 'Open new tab',
+        description: "Creates a new tab to the configured homepage",
         action: function() {
             chrome.tabs.create({});
         }
@@ -41,16 +48,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     actions.push({
         type: 'system',
         title: 'Close current tab',
+        description: "Closes the current tab",
         action: function() {
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                chrome.tabs.remove(tabs[0].id);
+            chrome.tabs.query({active: true, currentWindow: true}, function([tab]) {
+                if(tab.id)
+                    chrome.tabs.remove(tab.id);
             });
         }
     });
 
     actions.push({
         type: 'system',
-        title: 'Close popup',
+        title: 'Close palette',
+        description: "Close the palette without doing anything",
         action: function() {
             window.close();
         }
@@ -59,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     actions.push({
         type: 'system',
         title: 'Open browser shortcut keys',
+        description: "The browser defaults to control+P being print. Open the browser's shortcuts page to change this",
         action: function() {
             chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
         }
@@ -66,6 +77,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Render actions based on the current search query
     searchBox.addEventListener('input', function() {
+        if(!searchBox) return;
         const queryPhrase = searchBox.value.toLowerCase();
         
         if(queryPhrase.length) {
@@ -82,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     // Render the list of actions
-    function renderActions(actionItems, queryTerms) {
+    function renderActions(actionItems: CmdShiftPAction[], queryTerms: string[]) {
         actionsList.innerHTML = '';
         actionItems.forEach(function(action) {
             const actionElement = document.createElement('div');
@@ -97,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
      // Function to bold the matching part of the title
-     function highlightMatch(title, queryTerms) {
+     function highlightMatch(title: string, queryTerms: string[]) {
         if (!queryTerms) return title;
         let titleResult = title;
         for(const term of queryTerms) {
