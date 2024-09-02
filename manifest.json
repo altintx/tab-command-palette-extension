@@ -1,14 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "Tab Manager",
+  "name": "Tab Command Palette",
   "version": "1.0",
   "permissions": [
     "tabs",
-    "bookmarks"
+    "bookmarks",
+    "scripting"
   ],
   "background": {
     "service_worker": "dist/background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content-script.js"]
+    }
+  ],
   "commands": {
     "trigger-tab-list": {
       "suggested_key": {
@@ -18,16 +25,16 @@
     }
   },
   "action": {
-    "default_popup": "dist/popup.html",
+    "default_popup": "popup.html",
     "default_icon": {
-      "16": "dist/assets/icon16.png",
-      "48": "dist/assets/icon48.png",
-      "128": "dist/assets/icon128.png"
+      "16": "dist/assets/src/assets/icon16.png",
+      "48": "dist/assets/src/assets/icon48.png",
+      "128": "dist/assets/src/assets/icon128.png"
     }
   },
   "icons": {
-    "16": "dist/assets/icon16.png",
-    "48": "dist/assets/icon48.png",
-    "128": "dist/assets/icon128.png"
+    "16": "dist/assets/src/assets/icon16.png",
+    "48": "dist/assets/src/assets/icon48.png",
+    "128": "dist/assets/src/assets/icon128.png"
   }
 }

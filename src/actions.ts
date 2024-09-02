@@ -15,10 +15,11 @@ export async function getActions({
 
   tabs.filter(tab => !!tab.id).forEach(tab => {
     const title = `Switch to tab: ${tab.title}`;
+    const description = tab.innerText;
     newActions.push({
       id: uuidv4(),
       title,
-      description: title,
+      description,
       icon: "tab",
       action: function () {
         chrome.tabs.update(tab.id!, { active: true });
