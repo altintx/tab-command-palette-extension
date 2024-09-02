@@ -81,5 +81,18 @@ export async function getActions({
     }
   })
 
+  newActions.push({
+    type: 'system',
+    title: 'Bookmark current page',
+    description: "Add a bookmark for this page",
+    action: function () {
+      chrome.tabs.query({ active: true, currentWindow: true }, function ([tab]) {
+        if (tab.id)
+          chrome.bookmarks.create({ title: tab.title, url: tab.url });
+      });
+      closePopup();
+    }
+  })
+
   return newActions;
 }
