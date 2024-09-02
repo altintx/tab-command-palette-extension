@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CmdShiftPAction } from '../command-shift-p-action';
 import { getBookmarks, getTabs } from '../actions';
+import { Command } from "cmdk";
 
 const Popup: React.FC = () => {
   const [actions, setActions] = useState<CmdShiftPAction[]>([]);
   const searchBox = useRef<HTMLInputElement | null>(null);
-  const actionList = useRef<HTMLDivElement | null>(null);
-  const [search, setSearch] = useState<string>('');
 
   useEffect(() => {
     const immediate = async () => {
@@ -49,7 +48,7 @@ const Popup: React.FC = () => {
       });
 
       // Add action for closing the current tab
-      actions.push({
+      newActions.push({
         type: 'system',
         title: 'Close current tab',
         description: "Closes the current tab",
@@ -61,7 +60,7 @@ const Popup: React.FC = () => {
         }
       });
 
-      actions.push({
+      newActions.push({
         type: 'system',
         title: 'Close palette',
         description: "Close the palette without doing anything",
@@ -70,7 +69,7 @@ const Popup: React.FC = () => {
         }
       });
 
-      actions.push({
+      newActions.push({
         type: 'system',
         title: 'Open browser shortcut keys',
         description: "The browser defaults to control+P being print. Open the browser's shortcuts page to change this",
@@ -81,52 +80,34 @@ const Popup: React.FC = () => {
 
 
       setActions(newActions);
+      searchBox.current?.focus();
     }
     immediate();
   }, []);
 
-  const queryTerms = useMemo(() => search.split(' ').filter(term => term.length > 0), [search]);
-  const applicableActions = useMemo(() => {
-    return actions.filter(action => {
-      const title = action.title.toLowerCase();
-      const description = action.description.toLowerCase();
-
-      return queryTerms.every(term => title.includes(term) || description.includes(term));
-    }).map(action => {
-      // generate a resultText that highlights the search terms in the title
-      const resultText = action.title.split(' ').map(word => {
-        if (queryTerms.some(term => word.toLowerCase().includes(term))) {
-          return <strong>{word}</strong>;
-        } else {
-          return word;
-        }
-      });
-      return {
-        ...action,
-        foo: "bar",
-        display: resultText
-      }
-    })
-  }, [actions, queryTerms]);
-
   return (
-    <div>
-      <input
-        id="searchBox"
-        type="text"
-        placeholder="Search actions..."
-        ref={searchBox}
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-      />
-      <div ref={actionList} id="actions-list">
-        {applicableActions.map((action, index) => (
-          <div className="action-item" key={index} onClick={action.action}>
-            {action.display.map((word) => <>{word}{" "}</>)}
-          </div>
-        ))}
-      </div>
-    </div>
+    <Command
+      label="Command Menu"
+      loop
+    >
+    <Command.Input ref={searchBox} style={{
+      width: "100%",
+      border: "0"
+    }} />
+    <Command.List>
+      <Command.Empty>No results found.</Command.Empty>
+      {actions.map((action,ix) => (
+        <Command.Item 
+          key={action.title}
+          onSelect={action.action}
+          className='action-item'
+          value={`${action.title}-${ix}`}
+        >
+          {action.title}
+        </Command.Item>
+      ))}      
+    </Command.List>
+  </Command>
   );
 };
 

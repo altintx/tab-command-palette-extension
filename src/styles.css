@@ -41,7 +41,17 @@ body {
 .action-item:hover {
   background-color: #f0f0f0;
 }
+.light-theme .action-item:hover {
+  background-color: #f0f0f0;
+}
+.light-theme .action-item[data-selected="true"] {
+  background-color: #f0f0f0;
+}
 .dark-theme .action-item:hover {
+  background-color: #555;
+  color: #fff;
+}
+.dark-theme .action-item[data-selected="true"] {
   background-color: #555;
   color: #fff;
 }
