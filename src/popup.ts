@@ -1,5 +1,6 @@
 import { getTabs, getBookmarks } from './actions';
 import { CmdShiftPAction } from './command-shift-p-action';
+import './styles.css';
 
 document.addEventListener('DOMContentLoaded', async function() {
     const searchBox = document.getElementById('searchBox') as HTMLInputElement;
