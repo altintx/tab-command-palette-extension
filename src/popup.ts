@@ -121,6 +121,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Focus the search box when the popup opens
     searchBox.focus();
 
+    // show all actions when the popup opens
+    renderActions(actions, []);
+
     // Detect if the user prefers dark mode
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.body.classList.add('dark-theme');
