@@ -14,7 +14,7 @@
       "suggested_key": {
         "default": "Ctrl+Shift+P"
       },
-      "description": "Open tab list and manage tabs"
+      "description": "Open tab command palette"
     }
   },
   "action": {
