@@ -1,5 +1,7 @@
+import { v4 as uuidv4 } from 'uuid';
 import { getBookmarks, getTabs } from "./chrome-apis";
 import { CmdShiftPAction } from "./command-shift-p-action";
+import lunr from "lunr";
 
 export async function getActions({
   closePopup
@@ -14,9 +16,10 @@ export async function getActions({
   tabs.filter(tab => !!tab.id).forEach(tab => {
     const title = `Switch to tab: ${tab.title}`;
     newActions.push({
+      id: uuidv4(),
       title,
       description: title,
-      type: "tab",
+      icon: "tab",
       action: function () {
         chrome.tabs.update(tab.id!, { active: true });
         chrome.windows.update(tab.windowId!, { focused: true });
@@ -27,7 +30,8 @@ export async function getActions({
   bookmarks.forEach(bookmark => {
     const title = `Open bookmark: ${bookmark.title}`;
     newActions.push({
-      type: 'bookmark',
+      id: uuidv4(),
+      icon: 'bookmark',
       title,
       description: title,
       action: function () {
@@ -39,7 +43,8 @@ export async function getActions({
 
   // Add action for opening a new tab
   newActions.push({
-    type: 'system',
+    id: 'a3386e94-8f27-43c8-9959-d572034d233f',
+    icon: 'system',
     title: 'Open new tab',
     description: "Creates a new tab to the configured homepage",
     action: function () {
@@ -50,7 +55,8 @@ export async function getActions({
 
   // Add action for closing the current tab
   newActions.push({
-    type: 'system',
+    id: "de633866-81c2-4c46-873b-040f507588f4",
+    icon: 'system',
     title: 'Close current tab',
     description: "Closes the current tab",
     action: function () {
@@ -63,7 +69,8 @@ export async function getActions({
   });
 
   newActions.push({
-    type: 'system',
+    id: "6d49fe60-7cd3-4591-b24d-97162595b57b",
+    icon: 'system',
     title: 'Close palette',
     description: "Close the palette without doing anything",
     action: function () {
@@ -72,7 +79,8 @@ export async function getActions({
   });
 
   newActions.push({
-    type: 'system',
+    id: "742cb5e0-e1c8-4b1e-83f9-94cc70018378",
+    icon: 'system',
     title: 'Open browser shortcut keys',
     description: "The browser defaults to control+P being print. Open the browser's shortcuts page to change this",
     action: function () {
@@ -82,7 +90,8 @@ export async function getActions({
   })
 
   newActions.push({
-    type: 'system',
+    id: "e69d2a08-5f76-44ab-b9b6-f7cc43d48707",
+    icon: 'system',
     title: 'Bookmark current page',
     description: "Add a bookmark for this page",
     action: function () {
@@ -95,4 +104,16 @@ export async function getActions({
   })
 
   return newActions;
+}
+
+export function lunrIndex<T extends Record<string, unknown>>(dataset: T[], ref: (keyof T) & string, fields: ((keyof T) & string)[]) {
+  return lunr(function() {
+    this.ref(ref);
+    for(const field of fields) {
+      this.field(field);
+    }
+    for(const document of dataset) {
+      this.add(document);
+    }
+  })
 }

@@ -1,29 +1,35 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { CmdShiftPAction } from '../command-shift-p-action';
-import { getBookmarks, getTabs } from '../chrome-apis';
 import { Command } from "cmdk";
 import { GoBookmark, GoTools, GoProjectSymlink  } from "react-icons/go";
-import { getActions } from '../actions';
+import { getActions, lunrIndex } from '../actions';
 
 const Popup: React.FC = () => {
-  const [actions, setActions] = useState<CmdShiftPAction[]>([]);
+  const [allActions, setAllActions] = useState<CmdShiftPAction[]>([]);
   const searchBox = useRef<HTMLInputElement | null>(null);
 
   const closePopup = useCallback(() => window.close(), []);
 
   useEffect(() => {
     (async () => {
-      setActions(await getActions({ closePopup }));
+      setAllActions(await getActions({ closePopup }));
       searchBox.current?.focus();
     }).call(null);
   }, []);
+  const index = useMemo(() => lunrIndex(allActions, "id", ["title", "description"]), [allActions]);
+  const [search, setSearch] = useState<string>('');
+
+  const actions = useMemo(() => {
+    return index.search(search).map(({ ref }) => allActions.find(action => action.id === ref)!);
+  }, [index, search]);
 
   return (
     <Command
       label="Command Menu"
       loop
+      shouldFilter={false}
     >
-    <Command.Input ref={searchBox} className="searchBox" />
+    <Command.Input ref={searchBox} className="searchBox" value={search} onValueChange={setSearch} />
     <Command.List>
       <Command.Empty>No results found.</Command.Empty>
       {actions.map((action,ix) => (
@@ -33,9 +39,9 @@ const Popup: React.FC = () => {
           className='action-item'
           value={`${action.title}-${ix}`}
         >
-          {action.type === 'bookmark' && <GoBookmark />}
-          {action.type === "tab" && <GoProjectSymlink />}
-          {action.type === "system" && <GoTools />}
+          {action.icon === 'bookmark' && <GoBookmark />}
+          {action.icon === "tab" && <GoProjectSymlink />}
+          {action.icon === "system" && <GoTools />}
           {" "}{action.title}
         </Command.Item>
       ))}      

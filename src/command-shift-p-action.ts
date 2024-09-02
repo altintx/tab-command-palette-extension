@@ -1,5 +1,6 @@
 export type CmdShiftPAction = {
-  type: 'tab' | 'bookmark' | 'system';
+  id: string;
+  icon: 'tab' | 'bookmark' | 'system';
   title: string;
   description: string;
   action: () => void;
