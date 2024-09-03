@@ -8,6 +8,11 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 
+// This is a cache of the available actions the
+// last time we ran. They may not be legit anymore,
+// say, a user may have closed a tab so it's no
+// longer available. But it save a a tenth of a 
+// second on the FCP
 const actions: CmdShiftPAction[] = [];
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === "getActions") {
