@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getBookmarks, getTabs } from "./chrome-apis";
-import { CmdShiftPAction } from "./command-shift-p-action";
+import { CmdShiftPAction } from "./types/command-shift-p-action";
 import lunr from "lunr";
 
 export async function getActions({
