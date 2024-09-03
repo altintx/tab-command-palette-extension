@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { CmdShiftPAction } from '../command-shift-p-action';
+import { CmdShiftPAction } from '../types/command-shift-p-action';
 import { Command } from "cmdk";
 import { GoBookmark, GoTools, GoProjectSymlink  } from "react-icons/go";
 import { getActions, lunrIndex } from '../actions';
@@ -16,23 +16,22 @@ const Popup: React.FC = () => {
       searchBox.current?.focus();
     }).call(null);
   }, []);
-  const index = useMemo(() => lunrIndex(allActions, "id", ["title", "description"]), [allActions]);
+  // const index = useMemo(() => lunrIndex(allActions, "id", ["title", "description"]), [allActions]);
   const [search, setSearch] = useState<string>('');
 
-  const actions = useMemo(() => {
-    return index.search(search).map(({ ref }) => allActions.find(action => action.id === ref)!);
-  }, [index, search]);
+  // const actions = useMemo(() => {
+  //   return index.search(search).map(({ ref }) => allActions.find(action => action.id === ref)!);
+  // }, [index, search]);
 
   return (
     <Command
       label="Command Menu"
       loop
-      shouldFilter={false}
     >
     <Command.Input ref={searchBox} className="searchBox" value={search} onValueChange={setSearch} />
     <Command.List>
       <Command.Empty>No results found.</Command.Empty>
-      {actions.map((action,ix) => (
+      {allActions.map((action,ix) => (
         <Command.Item 
           key={action.title}
           onSelect={action.action}
