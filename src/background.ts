@@ -4,11 +4,3 @@ chrome.commands.onCommand.addListener((command) => {
     chrome.action.openPopup();
   }
 });
-
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'GET_INNER_TEXT') {
-    console.log('Received innerText from content script:', message.text);
-
-  }
-});
