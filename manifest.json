@@ -4,8 +4,10 @@
   "version": "1.0",
   "permissions": [
     "tabs",
+    "activeTab",
     "bookmarks",
-    "scripting"
+    "scripting",
+    "background"
   ],
   "background": {
     "service_worker": "dist/background.js"

@@ -12,14 +12,8 @@ const Popup: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      let loaded = false;
-      chrome.runtime.sendMessage({ type: 'getActions' }, (response) => {
-        loaded === false && setAllActions(response);
-      });
       const currentActions = await getActions({ closePopup });
-      loaded = true;
       setAllActions(currentActions);
-      chrome.runtime.sendMessage({ type: 'setActions', actions: currentActions });
       searchBox.current?.focus();
     }).call(null);
   }, []);

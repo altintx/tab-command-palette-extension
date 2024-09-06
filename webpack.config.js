@@ -14,7 +14,7 @@ module.exports = {
   ],
   entry: {
     popup: './src/app.tsx',
-    background: './src/background.ts',
+    background: './src/server.ts',
     "content-script": './src/content-script.ts',
   },
   output: {

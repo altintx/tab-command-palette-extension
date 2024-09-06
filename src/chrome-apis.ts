@@ -1,12 +1,22 @@
 import { Bookmark } from "./types/bookmark";
+import { TabStore } from "./types/messages";
 
-export async function getTabs(): Promise<(chrome.tabs.Tab & { innerText: string })[]> {
+export function getTabs(): Promise<(chrome.tabs.Tab & { innerText: string })[]> {
+  // background script maintains a list of tab contents
+  const centralizedDataStore: Promise<TabStore>  = chrome.runtime.sendMessage({ event: "getTabs" });
+      
   return new Promise((resolve) => {
     chrome.tabs.query({}, async function (tabs) {
+      const tabData = await centralizedDataStore;
       resolve(await Promise.all(tabs.map(async tab => {
+        let innerText = "";
+        if(tab.id) {
+          innerText = tabData[tab.id.toString()]?.content ?? "";
+          console.log({ "bodyOf": tab.title, innerText });
+        }
         return {
           ...tab,
-          innerText: '' // await getInnerTextFromTab(tab.id!)
+          innerText
         }
       })));
     });
