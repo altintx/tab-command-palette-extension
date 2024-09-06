@@ -4,4 +4,5 @@ export type CmdShiftPAction = {
   title: string;
   description: string;
   action: () => void;
+  onHighlight?: (searchText: string) => void;
 };

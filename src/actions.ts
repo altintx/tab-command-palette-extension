@@ -21,6 +21,9 @@ export async function getActions({
       title,
       description,
       icon: "tab",
+      onHighlight: function(searchText:string) {
+        chrome.tabs.sendMessage(tab.id!, { action: 'findInPage', searchText: searchText });
+      },
       action: function () {
         chrome.tabs.update(tab.id!, { active: true });
         chrome.windows.update(tab.windowId!, { focused: true });

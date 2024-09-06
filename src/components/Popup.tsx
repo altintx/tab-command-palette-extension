@@ -36,7 +36,12 @@ const Popup: React.FC = () => {
       {actions.map((action,ix) => (
         <Command.Item 
           key={action.title}
-          onSelect={action.action}
+          onSelect={() => {
+            action.action();
+            if(action.onHighlight) {
+              action.onHighlight(search);
+            }
+          }}
           className='action-item'
           value={`${action.title}-${ix}`}
         >
