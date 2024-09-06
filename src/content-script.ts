@@ -22,14 +22,25 @@ const innerText = document.body.innerText;
 sendInnerText(innerText);
 // find_in_page.js
 function highlightText(searchText: string) {
-  const uniqId = crypto.randomUUID();
   if (!searchText) return;
-
-  const bodyText = document.body.innerHTML;
-  const regex = new RegExp(`(${searchText})`, 'gi');
-  const newBodyText = bodyText.replace(regex, '<mark id=\"' + uniqId + '\">$1</mark>'); // Wrap matches in <mark> for highlighting
-  document.body.innerHTML = newBodyText;
-  document.getElementById(uniqId)?.scrollIntoView();
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let firstNewNode: HTMLElement | null = null;
+  for(let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const text = node.nodeValue;
+    if (text && text.match(new RegExp(searchText, 'i'))) {
+      const uniqId = crypto.randomUUID();
+      const mark = document.createElement('mark');
+      mark.id = uniqId;
+      const textNode = document.createTextNode(text);
+      mark.appendChild(textNode);
+      const replaced = node.parentNode?.insertBefore(mark, node);
+      node.parentNode?.removeChild(node);
+      if(!firstNewNode && replaced) {
+        firstNewNode = replaced;
+      }
+    }
+  }
+  firstNewNode?.scrollIntoView();
 }
 
 chrome.runtime.onMessage.addListener((message) => {
