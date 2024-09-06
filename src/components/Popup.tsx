@@ -17,22 +17,23 @@ const Popup: React.FC = () => {
       searchBox.current?.focus();
     }).call(null);
   }, []);
-  // const index = useMemo(() => lunrIndex(allActions, "id", ["title", "description"]), [allActions]);
+  const index = useMemo(() => lunrIndex(allActions, "id", ["title", "description"]), [allActions]);
   const [search, setSearch] = useState<string>('');
 
-  // const actions = useMemo(() => {
-  //   return index.search(search).map(({ ref }) => allActions.find(action => action.id === ref)!);
-  // }, [index, search]);
+  const actions = useMemo(() => {
+    return index.search(search).map(({ ref }) => allActions.find(action => action.id === ref)!);
+  }, [index, search]);
 
   return (
     <Command
       label="Command Menu"
       loop
+      shouldFilter={false}
     >
     <Command.Input ref={searchBox} className="searchBox" value={search} onValueChange={setSearch} />
     <Command.List>
       <Command.Empty>No results found.</Command.Empty>
-      {allActions.map((action,ix) => (
+      {actions.map((action,ix) => (
         <Command.Item 
           key={action.title}
           onSelect={action.action}
