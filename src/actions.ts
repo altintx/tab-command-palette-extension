@@ -22,7 +22,7 @@ export async function getActions({
       description,
       icon: "tab",
       onHighlight: function(searchText:string) {
-        chrome.tabs.sendMessage(tab.id!, { action: 'findInPage', searchText: searchText });
+        chrome.tabs.sendMessage(tab.id!, { event: 'findInPage', searchText: searchText });
       },
       action: function () {
         chrome.tabs.update(tab.id!, { active: true });

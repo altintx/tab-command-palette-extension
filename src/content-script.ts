@@ -7,16 +7,19 @@ function sendPageUnloadMessage() {
 
 // document.addEventListener('DOMContentLoaded', sendPageReadyMessage);
 window.addEventListener('beforeunload', sendPageUnloadMessage);
-const innerText = document.body.innerText;
-const message = {
-  page: {
-    content: innerText, 
-    title: document.title 
-  }, 
-  event: "domcontentready"
-}
-chrome.runtime.sendMessage(message);
+function sendInnerText(innerText: string) {
+  const message = {
+    page: {
+      content: innerText,
+      title: document.title
+    },
+    event: "domcontentready"
+  }
+  chrome.runtime.sendMessage(message);
 
+}
+const innerText = document.body.innerText;
+sendInnerText(innerText);
 // find_in_page.js
 function highlightText(searchText: string) {
   const uniqId = crypto.randomUUID();
@@ -29,8 +32,10 @@ function highlightText(searchText: string) {
   document.getElementById(uniqId)?.scrollIntoView();
 }
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'findInPage') {
-      highlightText(message.searchText);
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.event === 'findInPage') {
+    highlightText(message.searchText);
+  } else if (message.event === 'warmCache') {
+    sendInnerText(document.body.innerText);
   }
 });

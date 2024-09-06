@@ -44,3 +44,6 @@ chrome.commands.onCommand.addListener((command) => {
     chrome.action.openPopup();
   }
 });
+
+// doesn't work
+// chrome.runtime.sendMessage({ event: 'warmCache' });
