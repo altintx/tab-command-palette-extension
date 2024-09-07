@@ -60,7 +60,8 @@ export async function getActions({
     // exclude if url is open in a tab
     return !tabs.find(tab => tab.url === historyEntry.page.url);
   }).forEach(entry => {
-    const title = `Open from history: ${entry.page.title}`;
+    const countText = entry.count > 1 ? ` (opened ${entry.count} times)` : "";
+    const title = `Open from history: ${entry.page.title}${countText}`;
     const openInNewTabByDefault = currentTab?.url?.startsWith("http");
     newActions.push({
       id: uuidv4(),
