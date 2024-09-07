@@ -42,6 +42,6 @@ function extractBookmarks(node: chrome.bookmarks.BookmarkTreeNode, bookmarks: Bo
   if (node.children) {
     node.children.forEach(child => extractBookmarks(child, bookmarks));
   } else if (node.url) {
-    bookmarks.push({ title: node.title, url: node.url });
+    bookmarks.push({ title: node.title, url: node.url, id: node.id });
   }
 }

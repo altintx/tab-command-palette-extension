@@ -3,6 +3,7 @@ import { getBookmarks, getTabs } from "./chrome-apis";
 import { CmdShiftPAction } from "./types/command-shift-p-action";
 import lunr from "lunr";
 import { FindInPageEvent } from './types/events/find-in-page-event';
+import { GoBookmarkSlash, GoDuplicate, GoFileCode } from 'react-icons/go';
 
 export async function getActions({
   closePopup
@@ -29,7 +30,8 @@ export async function getActions({
         chrome.tabs.update(tab.id!, { active: true });
         chrome.windows.update(tab.windowId!, { focused: true });
         closePopup();
-      }
+      },
+      managementActions: []
     });
   });
   bookmarks.forEach(bookmark => {
@@ -42,7 +44,13 @@ export async function getActions({
       action: function () {
         chrome.tabs.create({ url: bookmark.url });
         closePopup();
+      },
+      managementActions: [[GoBookmarkSlash, { title: "Remove bookmark"}, function (action) {
+        if(!confirm("Are you sure you want to remove this bookmark?")) return;
+        chrome.bookmarks.remove(bookmark.id);
+        closePopup();
       }
+      ]]
     });
   });
 
@@ -55,7 +63,8 @@ export async function getActions({
     action: function () {
       chrome.tabs.create({});
       closePopup();
-    }
+    },
+    managementActions: []
   });
 
   // Add action for closing the current tab
@@ -70,7 +79,8 @@ export async function getActions({
           chrome.tabs.remove(tab.id);
         closePopup();
       });
-    }
+    },
+    managementActions: []
   });
 
   newActions.push({
@@ -80,23 +90,25 @@ export async function getActions({
     description: "Close the palette without doing anything",
     action: function () {
       window.close();
-    }
+    },
+    managementActions: []
   });
 
   newActions.push({
     id: "742cb5e0-e1c8-4b1e-83f9-94cc70018378",
-    icon: 'system',
+    icon: GoFileCode,
     title: 'Open browser shortcut keys',
     description: "The browser defaults to control+P being print. Open the browser's shortcuts page to change this",
     action: function () {
       chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
       closePopup();
-    }
+    },
+    managementActions: []
   })
 
   newActions.push({
     id: "e69d2a08-5f76-44ab-b9b6-f7cc43d48707",
-    icon: 'system',
+    icon: GoDuplicate,
     title: 'Bookmark current page',
     description: "Add a bookmark for this page",
     action: function () {
@@ -105,7 +117,8 @@ export async function getActions({
           chrome.bookmarks.create({ title: tab.title, url: tab.url });
       });
       closePopup();
-    }
+    },
+    managementActions: []
   })
 
   return newActions;
