@@ -1,3 +1,4 @@
+import { loadHistoryFromStorage, saveHistoryToStorage } from "./history-storage";
 import { afterPageLoadHandler } from "./server/after-page-load-handler";
 import { beforeUnloadHandler } from "./server/before-unload-handler";
 import { getHistoryHandler } from "./server/get-history-handler";
@@ -58,9 +59,15 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // You can also re-inject content script when the extension's background script restarts
 chrome.runtime.onStartup.addListener(() => {
+  loadHistoryFromStorage((loadedHistory) => {
+    history = loadedHistory;
+  });
   chrome.tabs.query({}, (tabs) => {
       tabs.forEach((tab) => {
           tab.id && tab.url && injectContentScript(tab.id, tab.url);
       });
   });
+});
+chrome.runtime.onSuspend.addListener(() => {
+  saveHistoryToStorage(history);
 });

@@ -1,3 +1,4 @@
+import { saveHistoryToStorage } from "../history-storage";
 import { CmdPBeforeUnloadEvent } from "../types/events/before-unload-page";
 import { HistoryEntry } from "../types/history";
 import { TabStore } from "../types/tab-state";
@@ -37,5 +38,6 @@ export function beforeUnloadHandler({ message, sender, tabData, history }: {
       });
     }
   }
+  saveHistoryToStorage(history); // Regular save
   console.log("server says updated tabData to exclude %s %s %o", windowId, tabId, tabData);
 }
