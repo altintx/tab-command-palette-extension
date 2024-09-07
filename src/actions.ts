@@ -26,6 +26,7 @@ export async function getActions({
       title,
       description,
       icon: "tab",
+      url: tab.url,
       onHighlight: function (searchText: string) {
         chrome.tabs.sendMessage(tab.id!, { event: 'findInPage', params: { term: searchText } } satisfies FindInPageEvent);
       },
@@ -44,6 +45,7 @@ export async function getActions({
       icon: 'bookmark',
       title,
       description: title,
+      url: bookmark.url,
       action: function () {
         chrome.tabs.create({ url: bookmark.url });
         closePopup();
@@ -68,6 +70,7 @@ export async function getActions({
       icon: GoHistory,
       title,
       description: entry.page.content,
+      url: entry.page.url,
       action: function () {
         openInNewTabByDefault ? chrome.tabs.create({ url: entry.page.url }) :
         currentTab && chrome.tabs.update(currentTab.id!, { url: entry.page.url });
@@ -154,6 +157,7 @@ export async function getActions({
   newActions.push({
     id: "742cb5e0-e1c8-4b1e-83f9-94cc70018378",
     icon: GoFileCode,
+    url: 'chrome://extensions/shortcuts',
     title: 'Open browser shortcut keys',
     description: "The browser defaults to control+P being print. Open the browser's shortcuts page to change this",
     action: function () {
@@ -181,14 +185,25 @@ export async function getActions({
   return newActions;
 }
 
-export function lunrIndex<T extends Record<string, unknown>>(dataset: T[], ref: (keyof T) & string, fields: ((keyof T) & string)[]) {
+type LunrIndexFieldProps = {
+  boost?: number;
+  extractor?: (doc: object) => string;
+};
+
+export function lunrIndex<T extends Record<string, unknown>>(dataset: T[], ref: (keyof T) & string, fields: [((keyof T) & string), LunrIndexFieldProps][]) {
   return lunr(function () {
     this.ref(ref);
     for (const field of fields) {
-      this.field(field);
+      this.field(field[0], field[1]);
     }
     for (const document of dataset) {
       this.add(document);
     }
   })
+}
+
+export function lunrActionsIndex(actions: CmdShiftPAction[]) {
+  return lunrIndex(actions, "id", [["title", {}], ["description", {}], ["url", {
+    boost: 20,
+  }]]);
 }

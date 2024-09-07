@@ -8,4 +8,5 @@ export type CmdShiftPAction = {
   action: () => void;
   managementActions: [IconType, IconBaseProps, (action: CmdShiftPAction) => void][];
   onHighlight?: (searchText: string) => void;
+  url?: string;
 };
