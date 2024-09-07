@@ -5,3 +5,10 @@ A text editor style command palette specifically for working with tabs. Hit `Com
 - Create tab opening for bookmarks
 - Close the active tab
 - Bookmark the active tab
+
+
+
+## terminology
+- tab: a page that is open, has a tabId and has a windowId
+- bookmark: metadata about a page to be loaded later
+- page: content of a page whether it's open or not

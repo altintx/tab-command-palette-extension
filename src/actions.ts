@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getBookmarks, getTabs } from "./chrome-apis";
 import { CmdShiftPAction } from "./types/command-shift-p-action";
 import lunr from "lunr";
+import { FindInPageEvent } from './types/events/find-in-page-event';
 
 export async function getActions({
   closePopup
@@ -15,14 +16,14 @@ export async function getActions({
 
   tabs.filter(tab => !!tab.id).forEach(tab => {
     const title = `Switch to tab: ${tab.title}`;
-    const description = tab.innerText;
+    const description = tab.body;
     newActions.push({
       id: uuidv4(),
       title,
       description,
       icon: "tab",
       onHighlight: function(searchText:string) {
-        chrome.tabs.sendMessage(tab.id!, { event: 'findInPage', searchText: searchText });
+        chrome.tabs.sendMessage(tab.id!, { event: 'findInPage', params: { term: searchText } } satisfies FindInPageEvent);
       },
       action: function () {
         chrome.tabs.update(tab.id!, { active: true });
