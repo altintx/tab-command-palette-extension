@@ -17,5 +17,5 @@ export function highlightText(searchText: string) {
       }
     }
   }
-  firstNewNode?.scrollIntoView();
+  firstNewNode?.scrollIntoView({ block: "center" });
 }
