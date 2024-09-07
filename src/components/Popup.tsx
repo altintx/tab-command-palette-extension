@@ -7,18 +7,18 @@ import { ActionRow } from './ActionRow';
 const Popup: React.FC = () => {
   const [allActions, setAllActions] = useState<CmdShiftPAction[]>([]);
   const searchBox = useRef<HTMLInputElement | null>(null);
+  const [search, setSearch] = useState<string>('');
 
   const closePopup = useCallback(() => window.close(), []);
 
   useEffect(() => {
     (async () => {
-      const currentActions = await getActions({ closePopup });
+      const currentActions = await getActions({ search, closePopup });
       setAllActions(currentActions);
       searchBox.current?.focus();
     }).call(null);
   }, []);
   const index = useMemo(() => lunrIndex(allActions, "id", ["title", "description"]), [allActions]);
-  const [search, setSearch] = useState<string>('');
 
   const actions = useMemo(() => {
     return index.search(search).map(({ ref }) => allActions.find(action => action.id === ref)!);

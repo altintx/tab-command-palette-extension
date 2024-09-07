@@ -7,12 +7,14 @@ import { GoBookmarkFill, GoBookmarkSlash, GoDuplicate, GoFileCode, GoHistory } f
 import { getHistory } from './popup/get-history';
 
 export async function getActions({
-  closePopup
+  closePopup,
+  search
 }: {
   closePopup: () => void;
+  search: string;
 }): Promise<CmdShiftPAction[]> {
   const [tabs, bookmarks, history] = await Promise.all([
-    getTabs(), getBookmarks(), getHistory()]);
+    getTabs(), getBookmarks(), getHistory(search)]);
   const newActions: CmdShiftPAction[] = [];
   
   const currentTab = tabs.find(tab => tab.active);

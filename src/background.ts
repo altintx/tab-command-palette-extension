@@ -7,7 +7,6 @@ import { TabStore } from "./types/tab-state";
 
 let tabData: TabStore = {};
 let history: HistoryEntry[] = [];
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.event === 'domcontentready') {
     afterPageLoadHandler({

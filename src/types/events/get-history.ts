@@ -4,6 +4,6 @@ export type GetHistory = CmdPEvent<
   ServerEvent,
   'getHistory',
   {
-    term?: string;
+    term: string;
   }
 >;
