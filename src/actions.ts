@@ -54,8 +54,10 @@ export async function getActions({
       ]]
     });
   });
-  (!("forEach" in history)) && console.error("history is not an array", history);
-  "forEach" in history && history.forEach(entry => {
+  history.filter((historyEntry) => {
+    // exclude if url is open in a tab
+    return !tabs.find(tab => tab.url === historyEntry.page.url);
+  }).forEach(entry => {
     const title = `Open from history: ${entry.page.title}`;
     newActions.push({
       id: uuidv4(),
