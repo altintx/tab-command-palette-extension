@@ -61,12 +61,14 @@ export async function getActions({
     return !tabs.find(tab => tab.url === historyEntry.page.url);
   }).forEach(entry => {
     const title = `Open from history: ${entry.page.title}`;
+    const openInNewTabByDefault = currentTab?.url?.startsWith("http");
     newActions.push({
       id: uuidv4(),
       icon: GoHistory,
       title,
       description: entry.page.content,
       action: function () {
+        openInNewTabByDefault ? chrome.tabs.create({ url: entry.page.url }) :
         currentTab && chrome.tabs.update(currentTab.id!, { url: entry.page.url });
         closePopup();
       },
@@ -92,6 +94,16 @@ export async function getActions({
         },
         () => {
           chrome.tabs.create({ url: entry.page.url });
+          closePopup();
+        }
+      ],
+      [
+        GoDuplicate,
+        {
+          title: "Open in this tab"
+        },
+        () => {
+          currentTab && chrome.tabs.update(currentTab.id!, { url: entry.page.url });
           closePopup();
         }
       ]]
