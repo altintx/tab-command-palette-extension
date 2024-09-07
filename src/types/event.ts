@@ -1,4 +1,4 @@
-export type ServerEvent = 'domcontentready' | 'beforeunload' | 'getTabs';
+export type ServerEvent = 'domcontentready' | 'beforeunload' | 'getTabs' | 'getHistory';
 export type ContentScriptEvent = 'findInPage' | 'warmCache';
 
 export type CmdPEvent<

@@ -3,18 +3,19 @@ import { getBookmarks, getTabs } from "./chrome-apis";
 import { CmdShiftPAction } from "./types/command-shift-p-action";
 import lunr from "lunr";
 import { FindInPageEvent } from './types/events/find-in-page-event';
-import { GoBookmarkSlash, GoDuplicate, GoFileCode } from 'react-icons/go';
+import { GoBookmarkFill, GoBookmarkSlash, GoDuplicate, GoFileCode, GoHistory } from 'react-icons/go';
+import { getHistory } from './popup/get-history';
 
 export async function getActions({
   closePopup
 }: {
   closePopup: () => void;
 }): Promise<CmdShiftPAction[]> {
-  const tabs = await getTabs();
-  const bookmarks = await getBookmarks();
-
+  const [tabs, bookmarks, history] = await Promise.all([
+    getTabs(), getBookmarks(), getHistory()]);
   const newActions: CmdShiftPAction[] = [];
-
+  
+  const currentTab = tabs.find(tab => tab.active);
   tabs.filter(tab => !!tab.id).forEach(tab => {
     const title = `Switch to tab: ${tab.title}`;
     const description = tab.body;
@@ -23,7 +24,7 @@ export async function getActions({
       title,
       description,
       icon: "tab",
-      onHighlight: function(searchText:string) {
+      onHighlight: function (searchText: string) {
         chrome.tabs.sendMessage(tab.id!, { event: 'findInPage', params: { term: searchText } } satisfies FindInPageEvent);
       },
       action: function () {
@@ -45,11 +46,50 @@ export async function getActions({
         chrome.tabs.create({ url: bookmark.url });
         closePopup();
       },
-      managementActions: [[GoBookmarkSlash, { title: "Remove bookmark"}, function (action) {
-        if(!confirm("Are you sure you want to remove this bookmark?")) return;
+      managementActions: [[GoBookmarkSlash, { title: "Remove bookmark" }, function (action) {
+        if (!confirm("Are you sure you want to remove this bookmark?")) return;
         chrome.bookmarks.remove(bookmark.id);
         closePopup();
       }
+      ]]
+    });
+  });
+  (!("forEach" in history)) && console.error("history is not an array", history);
+  "forEach" in history && history.forEach(entry => {
+    const title = `Open from history: ${entry.page.title}`;
+    newActions.push({
+      id: uuidv4(),
+      icon: GoHistory,
+      title,
+      description: entry.page.content,
+      action: function () {
+        currentTab && chrome.tabs.update(currentTab.id!, { url: entry.page.url });
+        closePopup();
+      },
+      onHighlight: async function (searchText: string) {
+        const tabs = await chrome.tabs.query({ active: true }); // a new tab may have been created prior to running highlights
+        const currentTab = tabs.find(tab => tab.active);
+        currentTab && chrome.tabs.sendMessage(currentTab.id!, { event: 'findInPage', params: { term: searchText } } satisfies FindInPageEvent);
+      },
+      managementActions: [[
+        GoBookmarkFill,
+        {
+          title: "Bookmark",
+        },
+        () => {
+          chrome.bookmarks.create({ title: entry.page.title, url: entry.page.url });
+          closePopup();
+        }
+      ],
+      [
+        GoDuplicate,
+        {
+          title: "Open in new tab"
+        },
+        () => {
+          chrome.tabs.create({ url: entry.page.url });
+          closePopup();
+        }
       ]]
     });
   });
@@ -125,12 +165,12 @@ export async function getActions({
 }
 
 export function lunrIndex<T extends Record<string, unknown>>(dataset: T[], ref: (keyof T) & string, fields: ((keyof T) & string)[]) {
-  return lunr(function() {
+  return lunr(function () {
     this.ref(ref);
-    for(const field of fields) {
+    for (const field of fields) {
       this.field(field);
     }
-    for(const document of dataset) {
+    for (const document of dataset) {
       this.add(document);
     }
   })

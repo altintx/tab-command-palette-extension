@@ -1,9 +1,12 @@
 import { afterPageLoadHandler } from "./server/after-page-load-handler";
 import { beforeUnloadHandler } from "./server/before-unload-handler";
+import { getHistoryHandler } from "./server/get-history-handler";
 import { getTabsHandler } from "./server/get-tabs-handler";
+import { HistoryEntry } from "./types/history";
 import { TabStore } from "./types/tab-state";
 
 let tabData: TabStore = {};
+let history: HistoryEntry[] = [];
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.event === 'domcontentready') {
@@ -13,9 +16,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       tabData
     });    
   } else if (message.event === 'beforeunload') {
-    beforeUnloadHandler({ message, sender, tabData });
+    beforeUnloadHandler({ message, sender, tabData, history });
   } else if (message.event === 'getTabs') {
     getTabsHandler({ message, sendResponse, tabData });
+  } else if (message.event === "getHistory") {
+    getHistoryHandler({ message, sendResponse, history });
   }
 });
 
