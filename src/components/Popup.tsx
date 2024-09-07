@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { CmdShiftPAction } from '../types/command-shift-p-action';
 import { Command } from "cmdk";
-import { getActions, lunrActionsIndex, lunrIndex } from '../actions';
+import { getActions, lunrActionsIndex } from '../actions';
 import { ActionRow } from './ActionRow';
 
 const Popup: React.FC = () => {
@@ -23,7 +23,6 @@ const Popup: React.FC = () => {
   const actions = useMemo(() => {
     const matches = index.search(search);
     const results = matches.map(({ ref }) => allActions.find(action => action.id === ref)!);
-    console.log({ matches, results })
     return results;
   }, [index, search]);
 
