@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { CmdShiftPAction } from '../types/command-shift-p-action';
 import { Command } from "cmdk";
-import { GoBookmark, GoTools, GoProjectSymlink  } from "react-icons/go";
 import { getActions, lunrIndex } from '../actions';
+import { ActionRow } from './ActionRow';
 
 const Popup: React.FC = () => {
   const [allActions, setAllActions] = useState<CmdShiftPAction[]>([]);
@@ -33,24 +33,12 @@ const Popup: React.FC = () => {
     <Command.Input ref={searchBox} className="searchBox" value={search} onValueChange={setSearch} />
     <Command.List>
       <Command.Empty>No results found.</Command.Empty>
-      {actions.map((action,ix) => (
-        <Command.Item 
-          key={action.title}
-          onSelect={() => {
-            action.action();
-            if(action.onHighlight) {
-              action.onHighlight(search);
-            }
-          }}
-          className='action-item'
-          value={`${action.title}-${ix}`}
-        >
-          {action.icon === 'bookmark' && <GoBookmark />}
-          {action.icon === "tab" && <GoProjectSymlink />}
-          {action.icon === "system" && <GoTools />}
-          {" "}{action.title}
-        </Command.Item>
-      ))}      
+      {actions.map(action => <ActionRow
+        key={action.id}
+        action={action}
+        search={search}
+        uniqueId={action.id}
+      />)}      
     </Command.List>
   </Command>
   );
