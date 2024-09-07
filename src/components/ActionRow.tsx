@@ -21,7 +21,7 @@ export const ActionRow: FC<{
     [action.icon, showManagement]);
   const managementIcons = useMemo(() => (<div
     style={{display:"inline-block"}}
-    onMouseOut={showDefault}>
+    onMouseLeave={showDefault}>
     {managementActions.map(([icon, props, ma]) => React.createElement(icon, {
       ...props,
       onClick: (e) => {
