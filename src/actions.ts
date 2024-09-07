@@ -63,7 +63,7 @@ export async function getActions({
     return !tabs.find(tab => tab.url === historyEntry.page.url);
   }).forEach(entry => {
     const countText = entry.count > 1 ? ` (opened ${entry.count} times)` : "";
-    const title = `Open from history: ${entry.page.title}${countText}`;
+    const title = `Open from history: ${entry.page.title}${countText}*`;
     const openInNewTabByDefault = currentTab?.url?.startsWith("http");
     newActions.push({
       id: uuidv4(),
@@ -102,7 +102,7 @@ export async function getActions({
         }
       ],
       [
-        GoDuplicate,
+        GoHistory,
         {
           title: "Open in this tab"
         },
@@ -111,6 +111,28 @@ export async function getActions({
           closePopup();
         }
       ]]
+    });
+  });
+
+  // Fetch history
+  chrome.history.search({ text: search, maxResults: 5 }, (historyItems) => {
+    historyItems.forEach((item) => {
+      newActions.push({
+        id: uuidv4(),
+        title: `Open from history: ${item.title}`,
+        description: item.url ?? "",
+        icon: GoHistory,
+        url: item.url,
+        action: function () {
+          const openInNewTab = currentTab?.url?.startsWith("http") ?? false;
+          if(openInNewTab)
+            chrome.tabs.create({ url: item.url });
+          else
+            currentTab && chrome.tabs.update(currentTab.id!, { url: item.url });
+          closePopup();
+        },
+        managementActions: []
+      })
     });
   });
 
