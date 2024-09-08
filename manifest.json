@@ -6,9 +6,7 @@
   "permissions": [
     "tabs",
     "activeTab",
-    "bookmarks",
     "scripting",
-    "background",
     "storage",
     "notifications",
     "history"
@@ -21,7 +19,8 @@
     "https://*/*"
   ],
   "background": {
-    "service_worker": "dist/background.js"
+    "service_worker": "dist/background.js",
+    "scripts": ["dist/background.js"]
   },
   "commands": {
     "launch_omnibox": {
