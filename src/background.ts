@@ -5,6 +5,7 @@ import { getHistoryHandler } from "./server/get-history-handler";
 import { getTabsHandler } from "./server/get-tabs-handler";
 import { HistoryEntry } from "./types/history";
 import { TabStore } from "./types/tab-state";
+import { getActions, lunrActionsIndex } from "./actions";
 
 let tabData: TabStore = {};
 let history: HistoryEntry[] = [];
@@ -20,7 +21,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.event === 'getTabs') {
     getTabsHandler({ message, sendResponse, tabData });
   } else if (message.event === "getHistory") {
-    getHistoryHandler({ message, sendResponse, history });
+    getHistoryHandler({ message, history });
   }
 });
 
@@ -70,4 +71,63 @@ chrome.runtime.onStartup.addListener(() => {
 });
 chrome.runtime.onSuspend.addListener(() => {
   saveHistoryToStorage(history);
+});
+
+
+// omnibox event listener for input changes (provide suggestions)
+chrome.omnibox.onInputChanged.addListener(async (input, suggest) => {
+  console.log("onInputChanged", input);
+  const allActions = await getActions({
+    search: input,
+    tabData,
+    history
+  })
+  const actions = lunrActionsIndex(allActions);
+  const matches = actions.search(input);
+  const suggestions = matches.map(({ ref }) => allActions.find(action => action.url === ref)!);
+  const chromeSuggestions = suggestions.map((suggestion): chrome.omnibox.SuggestResult => ({
+    content: suggestion.url ?? "",
+    deletable: false,
+    description: suggestion.title
+  }));
+  // Provide the suggestions to the user
+  console.log("suggesting", chromeSuggestions);
+  suggest(chromeSuggestions);
+});
+
+// omnibox event listener for when a user selects a suggestion or presses Enter
+chrome.omnibox.onInputEntered.addListener((input, disposition) => {
+  console.log("onInputEntered", input, disposition);
+  const url = input.startsWith('http') ? input : `https://${input}`;
+
+  // Search for an open tab with the same URL
+  chrome.tabs.query({}, (tabs) => {
+    const existingTab = tabs.find((tab) => tab.url && tab.url.includes(input));
+
+    if (existingTab) {
+      // Tab is already open, handle based on disposition
+      if (disposition === 'currentTab') {
+        // User wants to open it in the current tab
+        chrome.tabs.update(existingTab.id!, { active: true });
+      } else if (disposition === 'newForegroundTab') {
+        // User wants to open it in a new tab
+        chrome.tabs.create({ url });
+      } else if (disposition === 'newBackgroundTab') {
+        // User wants to open it in a new window
+        chrome.windows.create({ url });
+      }
+    } else {
+      // Tab is not open, handle based on disposition
+      if (disposition === 'currentTab') {
+        // Open the URL in the current tab
+        chrome.tabs.update({ url });
+      } else if (disposition === 'newForegroundTab') {
+        // Open the URL in a new tab
+        chrome.tabs.create({ url });
+      } else if (disposition === 'newBackgroundTab') {
+        // Open the URL in a new window
+        chrome.windows.create({ url });
+      }
+    }
+  });
 });

@@ -1,9 +1,10 @@
+// global tabData
 import { Bookmark } from "./types/bookmark";
 import { TabStore } from "./types/tab-state";
 
-export function getTabs(): Promise<(chrome.tabs.Tab & { body: string })[]> {
+export function getTabs(tabData?: TabStore): Promise<(chrome.tabs.Tab & { body: string })[]> {
   // background script maintains a list of tab contents
-  const centralizedDataStore: Promise<TabStore>  = chrome.runtime.sendMessage({ event: "getTabs" });
+  const centralizedDataStore: Promise<TabStore> = tabData ? new Promise((d) => d(tabData)) : chrome.runtime.sendMessage({ event: "getTabs" });
       
   return new Promise((resolve) => {
     chrome.tabs.query({}, async function (tabs) {
