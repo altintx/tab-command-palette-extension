@@ -7,9 +7,15 @@ Second, there is a script that will be added to every tab you open ("content scr
 
 This extension can be used from the Omnibox location bar by typing `> `. Once open, you can search and open URLs by title, URL or page contents. Searching is powered by the [Lunr.js](https://github.com/olivernn/lunr.js) search engine. Especially when opening by search, the extension will attempt to highlight matches on the page.
 
-# Installing
+# Downloading
+Download the newest release from the [repository at Github](https://github.com/altintx/tab-command-palette-extension/releases).  
+Extract the ZIP file.
+In browser, open to chrome://extension
+Press "Load Unpacked"
+Browse to the folder you extracted to.
 
-First, build it.
+# Building
+If you want to contribute to the development of this project, read on.
 ```
 git clone https://github.com/altintx/tab-command-palette-extension.git
 cd tab-command-palette-extension
@@ -17,7 +23,7 @@ npm install
 npm run build
 ```
 
-Second, add it to your browser.
+# Installing Built Extension
 open chrome://extensions
 Enable developer mode
 Press "Load Unpacked Extension"
