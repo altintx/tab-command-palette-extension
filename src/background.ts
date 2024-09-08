@@ -1,14 +1,13 @@
 import { loadHistoryFromStorage, saveHistoryToStorage } from "./history-storage";
 import { afterPageLoadHandler } from "./server/after-page-load-handler";
 import { beforeUnloadHandler } from "./server/before-unload-handler";
-import { getHistoryHandler } from "./server/get-history-handler";
-import { getTabsHandler } from "./server/get-tabs-handler";
-import { HistoryEntry } from "./types/history";
-import { TabStore } from "./types/tab-state";
+import type { HistoryEntry } from "./types/history";
+import type { TabStore } from "./types/tab-state";
 import { getActions, lunrActionsIndex } from "./actions";
 
 let tabData: TabStore = {};
 let history: HistoryEntry[] = [];
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.event === 'domcontentready') {
     afterPageLoadHandler({
@@ -18,17 +17,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });    
   } else if (message.event === 'beforeunload') {
     beforeUnloadHandler({ message, sender, tabData, history });
-  } else if (message.event === 'getTabs') {
-    getTabsHandler({ message, sendResponse, tabData });
-  } else if (message.event === "getHistory") {
-    getHistoryHandler({ message, history });
-  }
-});
-
-// listens for the keyboard shortcut for and opens the popup
-chrome.commands.onCommand.addListener((command) => {
-  if (command === "trigger-tab-list") {
-    chrome.action.openPopup();
   }
 });
 

@@ -1,5 +1,3 @@
-import { IconBaseProps, IconType } from "react-icons";
-
 export type CmdShiftPAction = {
   title: string;
   description: string;

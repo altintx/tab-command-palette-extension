@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Tab Command Palette",
+  "name": ">",
   "version": "1.0",
   "permissions": [
     "tabs",

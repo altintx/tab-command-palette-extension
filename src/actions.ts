@@ -1,12 +1,10 @@
-import { v4 as uuidv4 } from 'uuid';
-import { getBookmarks, getTabs } from "./chrome-apis";
-import { CmdShiftPAction } from "./types/command-shift-p-action";
 import lunr from "lunr";
+import { getTabs } from "./chrome-apis";
+import { getHistory } from './server/get-history-handler';
+import { CmdShiftPAction } from "./types/command-shift-p-action";
 import { FindInPageEvent } from './types/events/find-in-page-event';
-import { GoBookmarkFill, GoBookmarkSlash, GoDuplicate, GoFileCode, GoHistory } from 'react-icons/go';
-import { TabStore } from './types/tab-state';
-import { getHistoryHandler } from './server/get-history-handler';
 import { HistoryEntry } from './types/history';
+import { TabStore } from './types/tab-state';
 
 export async function getActions({
   search,
@@ -19,8 +17,8 @@ export async function getActions({
 }): Promise<CmdShiftPAction[]> {
   const [tabs, history] = await Promise.all([
     getTabs(tabData), 
-    getHistoryHandler({
-      message: { event: "getHistory", params: { term: search }},
+    getHistory({
+      search,
       history: historyRaw
   })]);
   const newActions: CmdShiftPAction[] = [];

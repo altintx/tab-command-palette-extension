@@ -1,7 +1,6 @@
 import { highlightText } from "./content-script/highlight-terms";
 import { sendPageUnloadMessage } from "./content-script/page-unload";
 import { sendInnerText } from "./content-script/send-inner-text";
-import { ContentScriptEvent } from "./types/event";
 import { FindInPageEvent } from "./types/events/find-in-page-event";
 import { WarmCacheEvent } from "./types/events/warm-cache-event";
 
