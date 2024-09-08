@@ -29,7 +29,7 @@ jobs:
 
     # Prepare the zip file for the extension
     - name: Create zip of root and dist
-      run: zip -r chrome-extension.zip . -x "node_modules/*" ".git/*" ".github"
+      run: zip -r chrome-extension.zip . -x "node_modules/*" ".git/*" ".github/*" "src/*"
 
     # Upload as an artifact (optional step for debugging)
     - name: Upload artifact
