@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx webpack --config webpack.config.js",
-    "build:watch": "npx webpack --config webpack.config.js --watch"
+    "build:watch": "npx webpack --config webpack.config.js --watch",
+    "clean": "rm -rf dist && rm -rf node_modules"
   },
   "repository": {
     "type": "git",
@@ -21,12 +22,8 @@
   "devDependencies": {
     "@types/chrome": "^0.0.270",
     "@types/lunr": "^2.3.7",
-    "@types/react": "^18.3.5",
     "@types/uuid": "^10.0.0",
     "copy-webpack-plugin": "^12.0.2",
-    "css-loader": "^7.1.2",
-    "mini-css-extract-plugin": "^2.9.1",
-    "style-loader": "^4.0.0",
     "ts-loader": "^9.5.1",
     "typescript": "^5.5.4",
     "webpack": "^5.94.0",
