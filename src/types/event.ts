@@ -4,7 +4,7 @@ export type ContentScriptEvent = 'findInPage';
 export type CmdPEvent<
   TEventType extends ServerEvent | ContentScriptEvent, 
   TEventName extends TEventType,
-  TEvent
+  TEvent = unknown
 > = {
   event: TEventName;
   params: TEvent;

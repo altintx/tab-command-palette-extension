@@ -1,3 +1,4 @@
+import Browser from "webextension-polyfill";
 import { HistoryEntry } from "./types/history";
 
 function serializeHistory(history: HistoryEntry[]): any[] {
@@ -9,14 +10,13 @@ function serializeHistory(history: HistoryEntry[]): any[] {
   }));
 }
 
-// Save history to chrome.storage.local
-export function saveHistoryToStorage(history: HistoryEntry[]) {
+// Save history to extensionHost.storage.local
+export async function saveHistoryToStorage(history: HistoryEntry[]) {
   const serializedHistory = serializeHistory(history);
-  chrome.storage.local.set({ history: serializedHistory }, () => {
-    if (chrome.runtime.lastError) {
-      console.error('Error saving history:', chrome.runtime.lastError);
-    }
-  });
+  await Browser.storage.local.set({ history: serializedHistory });
+  if (Browser.runtime.lastError) {
+    console.error('Error saving history:', Browser.runtime.lastError);
+  }
 }
 
 function deserializeHistory(serializedHistory: any[]): HistoryEntry[] {
@@ -28,15 +28,15 @@ function deserializeHistory(serializedHistory: any[]): HistoryEntry[] {
   }));
 }
 
-// Load history from chrome.storage.local
-export function loadHistoryFromStorage(callback: (history: HistoryEntry[]) => void) {
-  chrome.storage.local.get(['history'], (result) => {
-    if (chrome.runtime.lastError) {
-      console.error('Error loading history:', chrome.runtime.lastError);
-      callback([]);
-    } else {
-      const history = result.history ? deserializeHistory(result.history) : [];
-      callback(history);
-    }
-  });
+// Load history from extensionHost.storage.local
+export async function loadHistoryFromStorage(callback?: (history: HistoryEntry[]) => void) {
+  const result = await Browser.storage.local.get(['history']); 
+  if (Browser.runtime.lastError) {
+    console.error('Error loading history:', Browser.runtime.lastError);
+    callback?.([]);
+  } else {
+    const history = result.history ? deserializeHistory(result.history as any[]) : [];
+    callback?.(history);
+  }
+  return history;
 }

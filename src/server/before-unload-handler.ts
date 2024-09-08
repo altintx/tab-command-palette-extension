@@ -1,11 +1,11 @@
+import Browser from "webextension-polyfill";
 import { saveHistoryToStorage } from "../history-storage";
-import { CmdPBeforeUnloadEvent } from "../types/events/before-unload-page";
 import { HistoryEntry } from "../types/history";
 import { TabStore } from "../types/tab-state";
 
 // TODO: before unload is not neccessarily a close. this is wrong.
 export function beforeUnloadHandler({ sender, tabData, history }: {
-    sender: chrome.runtime.MessageSender
+    sender: Browser.Runtime.MessageSender // only a type
     tabData: TabStore,
     history: HistoryEntry[]
 }) {

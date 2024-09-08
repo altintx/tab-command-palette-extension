@@ -1,3 +1,4 @@
+import Browser from "webextension-polyfill";
 import { CmdPDomContentReadyEvent } from "../types/events/after-page-load";
 import { HistoryEntry } from "../types/history";
 import { TabStore } from "../types/tab-state";
@@ -9,7 +10,7 @@ export function afterPageLoadHandler({
   history,
 }: {
   message: CmdPDomContentReadyEvent, 
-  sender: chrome.runtime.MessageSender,
+  sender: Browser.Runtime.MessageSender, // only a type
   tabData: TabStore,
   history: HistoryEntry[],
 }) {
