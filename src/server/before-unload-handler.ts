@@ -4,8 +4,7 @@ import { HistoryEntry } from "../types/history";
 import { TabStore } from "../types/tab-state";
 
 // TODO: before unload is not neccessarily a close. this is wrong.
-export function beforeUnloadHandler({ message, sender, tabData, history }: {
-    message: CmdPBeforeUnloadEvent, 
+export function beforeUnloadHandler({ sender, tabData, history }: {
     sender: chrome.runtime.MessageSender
     tabData: TabStore,
     history: HistoryEntry[]

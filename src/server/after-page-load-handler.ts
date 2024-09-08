@@ -1,14 +1,17 @@
 import { CmdPDomContentReadyEvent } from "../types/events/after-page-load";
+import { HistoryEntry } from "../types/history";
 import { TabStore } from "../types/tab-state";
 
 export function afterPageLoadHandler({
   message,
   sender,
-  tabData
+  tabData,
+  history,
 }: {
   message: CmdPDomContentReadyEvent, 
   sender: chrome.runtime.MessageSender,
-  tabData: TabStore
+  tabData: TabStore,
+  history: HistoryEntry[],
 }) {
   const windowId = sender.tab?.windowId?.toString(),
     tabId = sender.tab?.id?.toString(),
@@ -29,5 +32,19 @@ export function afterPageLoadHandler({
     tabId: tabId,
     windowId: windowId,
   }
-  console.info("server says updated tabData", tabData);
+  const existingHistory = history.find(entry => entry.page.url === sender.tab?.url);
+  if(existingHistory) {
+    existingHistory.count++;
+    existingHistory.updatedAt = now;
+    delete existingHistory.closedAt;
+  } else {
+    history.push({
+      page: {
+        ...tabData[tabId]?.page
+      },
+      count: 1,
+      createdAt: now,
+      updatedAt: now
+    });
+  }
 }

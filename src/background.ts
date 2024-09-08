@@ -14,10 +14,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     afterPageLoadHandler({
       message,
       sender,
-      tabData
+      tabData,
+      history,
     });    
   } else if (message.event === 'beforeunload') {
-    beforeUnloadHandler({ message, sender, tabData, history });
+    beforeUnloadHandler({ sender, tabData, history });
   }
 });
 
@@ -63,6 +64,8 @@ chrome.runtime.onSuspend.addListener(() => {
 
 let search = "";
 
+const newTabs: chrome.tabs.Tab[] = [];
+
 // omnibox event listener for input changes (provide suggestions)
 chrome.omnibox.onInputChanged.addListener(async (input, suggest) => {
   search = input;
@@ -92,29 +95,59 @@ function highlightInPage(tab: chrome.tabs.Tab, search: string) {
 
 // omnibox event listener for when a user selects a suggestion or presses Enter
 chrome.omnibox.onInputEntered.addListener((input, disposition) => {
+  console.info("cmdp special behavior starting");
   const url = input.startsWith('http') ? input : `https://${input}`;
-
   // Search for an open tab with the same URL
-  chrome.tabs.query({}, (tabs) => {
+  chrome.tabs.query({}, async (tabs) => {
+    const currentTab = tabs.find((tab) => tab.active);
     const existingTab = tabs.find((tab) => tab.url && tab.url.includes(input));
+    console.info("is there an existing tab for the page being loaded? it is", existingTab);
     const highlightCallback = (tab: chrome.tabs.Tab | undefined) => {
       tab && highlightInPage(tab, search);
-    }
+    };
+
+    // Detect if the current tab is the "New Tab" page (chrome://newtab/)
+    console.info("what is the current tab?", currentTab);
+    const currentTabIsNewTab = currentTab?.url === 'chrome://newtab/';
+    console.info("am i sitting at a new tab page?", currentTabIsNewTab);
+
+
+    // Check if we found an existing tab with the same URL
     if (existingTab) {
       if (disposition === 'currentTab') {
+        // Switch to the existing tab and close the current (new tab) if necessary
+        console.info("switching to existing tab");
         chrome.tabs.update(existingTab.id!, { active: true }, highlightCallback);
+        if (currentTabIsNewTab && currentTab?.id) {
+          console.info("closing current tab");
+          await chrome.tabs.remove(currentTab.id);
+        } else {
+          console.info("not closing current tab");
+        }
       } else {
+        // If current tab is not a real page, load the new URL in the same tab
         chrome.tabs.create({ url }, highlightCallback);
+        console.info("creating new tab");
       }
     } else {
-      // Tab is not open, handle based on disposition
-      if (disposition === 'currentTab') {
-        // Open the URL in the current tab
-        chrome.tabs.update({ url }, highlightCallback);
-      } else {
-        // Open the URL in a new window
+      if(currentTab) {
+        console.info("create new tab");
         chrome.tabs.create({ url }, highlightCallback);
+      } else {
+        // Tab is not already open, handle based on disposition
+        chrome.tabs.update({ url }, highlightCallback);
+        console.info("updating tab");
       }
     }
+  });
+});
+
+
+chrome.commands.onCommand.addListener((command) => {
+  chrome.notifications.create({
+    type: 'basic',
+    iconUrl: 'assets/src/assets/icon128.png',
+    title: 'Press Command/Control L to focus the address bar',
+    message: `Start your search with a > character`,
   });
 });

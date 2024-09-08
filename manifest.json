@@ -9,6 +9,7 @@
     "scripting",
     "background",
     "storage",
+    "notifications",
     "history"
   ],
   "omnibox": {
@@ -20,6 +21,14 @@
   ],
   "background": {
     "service_worker": "dist/background.js"
+  },
+  "commands": {
+    "launch_omnibox": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+P"
+      },
+      "description": "Launch omnibox with >"
+    }
   },
   "content_scripts": [
     {
