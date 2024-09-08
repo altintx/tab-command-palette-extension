@@ -37,12 +37,11 @@ function injectContentScript(tabId: number, url: string) {
 
 // When the extension is installed or updated
 chrome.runtime.onInstalled.addListener(() => {
-  // Query all open tabs
   chrome.tabs.query({}, (tabs) => {
+    tabs.forEach((tab) => {
       // Inject content script into each tab
-      tabs.forEach((tab) => {
-          tab.id && tab.url && injectContentScript(tab.id, tab.url);
-      });
+      tab.id && tab.url && injectContentScript(tab.id, tab.url);
+    });
   });
 });
 
@@ -52,9 +51,9 @@ chrome.runtime.onStartup.addListener(() => {
     history = loadedHistory;
   });
   chrome.tabs.query({}, (tabs) => {
-      tabs.forEach((tab) => {
-          tab.id && tab.url && injectContentScript(tab.id, tab.url);
-      });
+    tabs.forEach((tab) => {
+      tab.id && tab.url && injectContentScript(tab.id, tab.url);
+    });
   });
 });
 chrome.runtime.onSuspend.addListener(() => {
@@ -64,7 +63,6 @@ chrome.runtime.onSuspend.addListener(() => {
 
 // omnibox event listener for input changes (provide suggestions)
 chrome.omnibox.onInputChanged.addListener(async (input, suggest) => {
-  console.log("onInputChanged", input);
   const allActions = await getActions({
     search: input,
     tabData,
@@ -78,14 +76,11 @@ chrome.omnibox.onInputChanged.addListener(async (input, suggest) => {
     deletable: false,
     description: suggestion.title
   }));
-  // Provide the suggestions to the user
-  console.log("suggesting", chromeSuggestions);
   suggest(chromeSuggestions);
 });
 
 // omnibox event listener for when a user selects a suggestion or presses Enter
 chrome.omnibox.onInputEntered.addListener((input, disposition) => {
-  console.log("onInputEntered", input, disposition);
   const url = input.startsWith('http') ? input : `https://${input}`;
 
   // Search for an open tab with the same URL
@@ -93,15 +88,9 @@ chrome.omnibox.onInputEntered.addListener((input, disposition) => {
     const existingTab = tabs.find((tab) => tab.url && tab.url.includes(input));
 
     if (existingTab) {
-      // Tab is already open, handle based on disposition
       if (disposition === 'currentTab') {
-        // User wants to open it in the current tab
         chrome.tabs.update(existingTab.id!, { active: true });
-      } else if (disposition === 'newForegroundTab') {
-        // User wants to open it in a new tab
-        chrome.tabs.create({ url });
-      } else if (disposition === 'newBackgroundTab') {
-        // User wants to open it in a new window
+      } else {
         chrome.windows.create({ url });
       }
     } else {
@@ -109,10 +98,7 @@ chrome.omnibox.onInputEntered.addListener((input, disposition) => {
       if (disposition === 'currentTab') {
         // Open the URL in the current tab
         chrome.tabs.update({ url });
-      } else if (disposition === 'newForegroundTab') {
-        // Open the URL in a new tab
-        chrome.tabs.create({ url });
-      } else if (disposition === 'newBackgroundTab') {
+      } else {
         // Open the URL in a new window
         chrome.windows.create({ url });
       }
