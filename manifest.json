@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
   "name": ">",
+  "description": "An omnibox extension to search history and recycle tabs.",
   "version": "1.0",
   "permissions": [
     "tabs",
