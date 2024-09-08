@@ -2,7 +2,6 @@ import lunr from "lunr";
 import { getTabs } from "./chrome-apis";
 import { getHistory } from './server/get-history-handler';
 import { CmdShiftPAction } from "./types/command-shift-p-action";
-import { FindInPageEvent } from './types/events/find-in-page-event';
 import { HistoryEntry } from './types/history';
 import { TabStore } from './types/tab-state';
 
@@ -22,17 +21,13 @@ export async function getActions({
       history: historyRaw
   })]);
   const newActions: CmdShiftPAction[] = [];
-  const currentTab = tabs.find(tab => tab.active);
   tabs.filter(tab => !!tab.id).forEach(tab => {
-    const title = `Switch to tab: ${tab.title}`;
+    const title = `Tab: ${tab.title}`;
     const description = tab.body;
     newActions.push({
       title,
       description,
       url: tab.url,
-      onHighlight: function (searchText: string) {
-        chrome.tabs.sendMessage(tab.id!, { event: 'findInPage', params: { term: searchText } } satisfies FindInPageEvent);
-      },
     });
   });
   history.filter((historyEntry) => {
@@ -40,23 +35,17 @@ export async function getActions({
     return !tabs.find(tab => tab.url === historyEntry.page.url);
   }).forEach(entry => {
     const countText = entry.count > 1 ? ` (opened ${entry.count} times)` : "";
-    const title = `Open from history: ${entry.page.title}${countText}*`;
-    const openInNewTabByDefault = currentTab?.url?.startsWith("http");
+    const title = `History: ${entry.page.title}${countText}`;
     newActions.push({
       title,
       description: entry.page.content,
       url: entry.page.url,
-      onHighlight: async function (searchText: string) {
-        const tabs = await chrome.tabs.query({ active: true }); // a new tab may have been created prior to running highlights
-        const currentTab = tabs.find(tab => tab.active);
-        currentTab && chrome.tabs.sendMessage(currentTab.id!, { event: 'findInPage', params: { term: searchText } } satisfies FindInPageEvent);
-      }
     });
   });
 
   newActions.push({
     url: 'chrome://extensions/shortcuts',
-    title: 'Open browser shortcut keys',
+    title: 'Shortcut keys',
     description: "The browser defaults to control+P being print. Open the browser's shortcuts page to change this",
   })
 

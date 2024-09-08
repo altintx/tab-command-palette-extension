@@ -4,6 +4,7 @@ import { beforeUnloadHandler } from "./server/before-unload-handler";
 import type { HistoryEntry } from "./types/history";
 import type { TabStore } from "./types/tab-state";
 import { getActions, lunrActionsIndex } from "./actions";
+import { FindInPageEvent } from "./types/events/find-in-page-event";
 
 let tabData: TabStore = {};
 let history: HistoryEntry[] = [];
@@ -60,9 +61,11 @@ chrome.runtime.onSuspend.addListener(() => {
   saveHistoryToStorage(history);
 });
 
+let search = "";
 
 // omnibox event listener for input changes (provide suggestions)
 chrome.omnibox.onInputChanged.addListener(async (input, suggest) => {
+  search = input;
   const allActions = await getActions({
     search: input,
     tabData,
@@ -79,6 +82,14 @@ chrome.omnibox.onInputChanged.addListener(async (input, suggest) => {
   suggest(chromeSuggestions);
 });
 
+function highlightInPage(tab: chrome.tabs.Tab, search: string) {
+  try {
+    chrome.tabs.sendMessage(tab.id!, { event: 'findInPage', params: { term: search } } satisfies FindInPageEvent);
+  } catch (e) {
+    console.error(`Failed to highlight in page: ${e}`, chrome.runtime.lastError?.message);
+  }
+}
+
 // omnibox event listener for when a user selects a suggestion or presses Enter
 chrome.omnibox.onInputEntered.addListener((input, disposition) => {
   const url = input.startsWith('http') ? input : `https://${input}`;
@@ -86,21 +97,23 @@ chrome.omnibox.onInputEntered.addListener((input, disposition) => {
   // Search for an open tab with the same URL
   chrome.tabs.query({}, (tabs) => {
     const existingTab = tabs.find((tab) => tab.url && tab.url.includes(input));
-
+    const highlightCallback = (tab: chrome.tabs.Tab | undefined) => {
+      tab && highlightInPage(tab, search);
+    }
     if (existingTab) {
       if (disposition === 'currentTab') {
-        chrome.tabs.update(existingTab.id!, { active: true });
+        chrome.tabs.update(existingTab.id!, { active: true }, highlightCallback);
       } else {
-        chrome.windows.create({ url });
+        chrome.tabs.create({ url }, highlightCallback);
       }
     } else {
       // Tab is not open, handle based on disposition
       if (disposition === 'currentTab') {
         // Open the URL in the current tab
-        chrome.tabs.update({ url });
+        chrome.tabs.update({ url }, highlightCallback);
       } else {
         // Open the URL in a new window
-        chrome.windows.create({ url });
+        chrome.tabs.create({ url }, highlightCallback);
       }
     }
   });
